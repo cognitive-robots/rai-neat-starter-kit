@@ -143,3 +143,6 @@ model_ckpt
 *.pyc
 *.npy
 *.png
+
+# Results
+results
