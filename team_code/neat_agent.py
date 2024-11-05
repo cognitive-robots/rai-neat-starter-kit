@@ -18,6 +18,7 @@ from neat.config import GlobalConfig
 from neat.utils import flow_to_color
 from team_code.planner import RoutePlanner
 
+from rai.autoagents import base_agent
 
 SAVE_PATH = os.environ.get('SAVE_PATH', None)
 
@@ -41,7 +42,7 @@ def scale_and_crop_image(image, scale=1, crop=256):
     return cropped_image
 
 
-class MultiTaskAgent(autonomous_agent.AutonomousAgent):
+class MultiTaskAgent(base_agent.BaseAgent):
 
 	def setup(self, path_to_conf_file):
 		self.track = autonomous_agent.Track.SENSORS
