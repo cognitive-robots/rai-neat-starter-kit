@@ -1,18 +1,19 @@
-# NEAT: Neural Attention Fields for End-to-End Autonomous Driving
+# CARLA RAI Challenge 2024 Starter kit
 
-## [Paper](http://www.cvlibs.net/publications/Chitta2021ICCV.pdf) | [Supplementary](http://www.cvlibs.net/publications/Chitta2021ICCV_supplementary.pdf) | [Video](https://www.youtube.com/watch?v=gtO-ghjKkRs) | [Talk](https://www.youtube.com/watch?v=hYm6LPTyHHA) | [Poster](https://www.cvlibs.net/publications/Chitta2021ICCV_poster.pdf) | [Slides](https://www.cvlibs.net/publications/Chitta2021ICCV_slides.pdf)
+This repository contains the starter kit for the CARLA RAI Challenge 2024. It is based on [Neural Attention Fields for End-to-End Autonomous Driving (NEAT)](https://github.com/autonomousvision/neat).
+
+## Neural Attention Fields for End-to-End Autonomous Driving (NEAT) 
+### [Paper](http://www.cvlibs.net/publications/Chitta2021ICCV.pdf) | [Supplementary](http://www.cvlibs.net/publications/Chitta2021ICCV_supplementary.pdf) | [Video](https://www.youtube.com/watch?v=gtO-ghjKkRs) | [Talk](https://www.youtube.com/watch?v=hYm6LPTyHHA) | [Poster](https://www.cvlibs.net/publications/Chitta2021ICCV_poster.pdf) | [Slides](https://www.cvlibs.net/publications/Chitta2021ICCV_slides.pdf)
 
 <img src="neat/assets/neat_clip.GIF" height="270" hspace=30>
 
-This repository is for the ICCV 2021 paper [NEAT: Neural Attention Fields for End-to-End Autonomous Driving](http://www.cvlibs.net/publications/Chitta2021ICCV.pdf).
+The `main` branch of this repository contains the original code for NEAT.
 
-```bibtex
-@inproceedings{Chitta2021ICCV,
-  author = {Chitta, Kashyap and Prakash, Aditya and Geiger, Andreas},
-  title = {NEAT: Neural Attention Fields for End-to-End Autonomous Driving},
-  booktitle = {International Conference on Computer Vision (ICCV)},
-  year = {2021}
-}
+## Clone
+To clone the repository with all submodules 
+
+```shell
+git clone -b starter-kit --recurse-submodules https://github.com/cognitive-robots/rai-neat/tree/starter-kit 
 ```
 
 ## Setup
@@ -22,54 +23,42 @@ conda env create -f environment.yml
 conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch -c nvidia
 ```
 
-For running the AIM-VA baseline, you will additionally need to install [MMCV](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) and [MMSegmentation](https://github.com/open-mmlab/mmsegmentation/blob/master/docs/get_started.md#installation).
-```Shell
-pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/index.html
-pip install mmsegmentation
-```
-
-## Data Generation
-The training data is generated using ```leaderboard/team_code/auto_pilot.py```. Data generation requires routes and scenarios. Each route is defined by a sequence of waypoints (and optionally a weather condition) that the agent needs to follow. Each scenario is defined by a trigger transform (location and orientation) and other actors present in that scenario (optional). We provide several routes and scenarios under ```leaderboard/data/```. The [TransFuser repository](https://github.com/autonomousvision/transfuser) and [leaderboard repository](https://github.com/carla-simulator/leaderboard/tree/master/data) provide additional routes and scenario files.
+## Data Generation (from NEAT)
+The training data is generated using ```team_code/auto_pilot.py```. Data generation requires routes and scenarios. Each route is defined by a sequence of waypoints (and optionally a weather condition) that the agent needs to follow. Each scenario is defined by a trigger transform (location and orientation) and other actors present in that scenario (optional). We provide several routes and scenarios under ```leaderboard/data/```. The [TransFuser repository](https://github.com/autonomousvision/transfuser) and [leaderboard repository](https://github.com/carla-simulator/leaderboard/tree/master/data) provide additional routes and scenario files.
 
 ### Running a CARLA Server
 
 #### With Display
-```Shell
-./CarlaUE4.sh --world-port=2000 -opengl
-```
-
-#### Without Display
 
 Without Docker:
+
 ```Shell
-SDL_VIDEODRIVER=offscreen SDL_HINT_CUDA_DEVICE=0 ./CarlaUE4.sh --world-port=2000 -opengl
+./CarlaUE4.sh
 ```
 
 With Docker:
 
-Instructions for setting up docker are available [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker). Pull the docker image of CARLA 0.9.10.1 ```docker pull carlasim/carla:0.9.10.1```.
+Instructions for setting up docker are available [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker). The following command will pull the docker image of CARLA 0.9.10.1 and run the container.
 
-Docker 18:
-```Shell
-docker run -it --rm -p 2000-2002:2000-2002 --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 carlasim/carla:0.9.10.1 ./CarlaUE4.sh --world-port=2000 -opengl
+```shell
+docker run --privileged --gpus all --net=host -e DISPLAY=${DISPLAY} -it -e SDL_VIDEODRIVER=x11 -v /tmp/.X11-unix:/tmp/.X11-unix carlasim/carla:0.9.10.1 /bin/bash
+```
+Once inside the container, run the Carla server with
+
+```shell
+./CarlaUE4.sh
 ```
 
-Docker 19:
-```Shell
-docker run -it --rm --net=host --gpus '"device=0"' carlasim/carla:0.9.10.1 ./CarlaUE4.sh --world-port=2000 -opengl
-```
-
-If the docker container doesn't start properly then add another environment variable ```-e SDL_AUDIODRIVER=dsp```.
 
 ### Running the Autopilot
 
 Once the CARLA server is running, rollout the autopilot to start data generation.
 ```Shell
-./leaderboard/scripts/run_evaluation.sh
+bash rai/scripts/run_evaluation.sh
 ```
-The expert agent used for data generation is defined in ```leaderboard/team_code/auto_pilot.py```. Different variables which need to be set are specified in ```leaderboard/scripts/run_evaluation.sh```. The expert agent is originally based on the autopilot from [this codebase](https://github.com/bradyz/2020_CARLA_challenge).
+The expert agent used for data generation is defined in ```team_code/auto_pilot.py```. Different variables which need to be set are specified in ```rai/scripts/run_evaluation.sh```. The expert agent is originally based on the autopilot from [this codebase](https://github.com/bradyz/2020_CARLA_challenge).
 
-## Training
+## Training (from NEAT)
 The training code and pretrained models are provided below.
 ```Shell
 mkdir model_ckpt
@@ -86,16 +75,50 @@ There are 5 pretrained models provided in ```model_ckpt/```:
 
 Additional baselines are available in the [TransFuser repository](https://github.com/autonomousvision/transfuser).
 
-## Evaluation
-Spin up a CARLA server (described above) and run the required agent. The required variables need to be set in ```leaderboard/scripts/run_evaluation.sh```.
-```Shell
-CUDA_VISIBLE_DEVICES=0 ./leaderboard/scripts/run_evaluation.sh
+## Evaluation and Quick Test
+
+### Running CARLA Server
+With Docker:
+
+Instructions for setting up docker are available [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker). The following command will pull the docker image of CARLA 0.9.10.1 and run the container.
+
+```shell
+docker run --privileged --gpus all --net=host -e DISPLAY=${DISPLAY} -it -e SDL_VIDEODRIVER=x11 -v /tmp/.X11-unix:/tmp/.X11-unix carlasim/carla:0.9.10.1 /bin/bash
+```
+Once inside the container, run the Carla server with
+
+```shell
+./CarlaUE4.sh
 ```
 
-## Acknowledgements
-This implementation primarily extends the [cvpr2021 branch of the existing TransFuser repository](https://github.com/autonomousvision/transfuser/tree/cvpr2021).
+### Running NEAT Agent
 
-If you found our work interesting, check out the code for some more recent work on CARLA from our group:
-- [Renz et al., PlanT: Explainable Planning Transformers via Object-Level Representations (CoRL 2022)](https://github.com/autonomousvision/plant)
-- [Chitta et al., TransFuser: Imitation with Transformer-Based Sensor Fusion for Autonomous Driving (PAMI 2022)](https://github.com/autonomousvision/transfuser)
-- [Hanselmann et al., KING: Generating Safety-Critical Driving Scenarios for Robust Imitation via Kinematics Gradients (ECCV 2022)](https://github.com/autonomousvision/king)
+Update the required variables in ```rai/scripts/env_var.sh``` and run the agent, with or without Docker.
+
+*Note*: For a quick test, change `CUSTOM_ROUTE_TIMEOUT` (e.g. =15) in `rai/scripts/env_var.sh`.
+
+
+#### Without Docker
+
+```Shell
+bash rai/scripts/run_evaluation.sh
+```
+
+#### With Docker
+
+Build the Docker image by running:
+
+```shell
+bash rai/scripts/make_docker.sh -t <image:tag> # for example neat:0.1
+```
+
+Once the image is built, run the Docker image with:
+
+```shell
+docker run --ipc=host --gpus all --net=host -e DISPLAY=$DISPLAY -it -e SDL_VIDEODRIVER=x11 -v /tmp/.X11-unix:/tmp/.X11-unix <image:tag> /bin/bash
+```
+Finally, run the evaluation script within the Docker container:
+
+```shell
+bash rai/scripts/run_evaluation.sh
+```
