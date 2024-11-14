@@ -7,13 +7,11 @@ This repository contains the starter kit for the CARLA RAI Challenge 2024. It is
 
 <img src="neat/assets/neat_clip.GIF" height="270" hspace=30>
 
-The `main` branch of this repository contains the original code for NEAT.
-
 ## Clone
 To clone the repository with all submodules 
 
 ```shell
-git clone -b starter-kit --recurse-submodules https://github.com/cognitive-robots/rai-neat/tree/starter-kit 
+git clone --recurse-submodules https://github.com/cognitive-robots/rai-neat-starter-kit.git 
 ```
 
 ## Setup
@@ -122,3 +120,19 @@ Finally, run the evaluation script within the Docker container:
 ```shell
 bash rai/scripts/run_evaluation.sh
 ```
+
+## Submission
+
+To submit an agent to the CARLA RAI Challenge 2024:
+
+1. First, create a Conda environment and install EvalAI, which is EvalAI's command-line interface package:
+    ```bash
+    conda create -n evalai-cli python=3.7
+    conda activate evalai-cli
+    pip install evalai~=1.3.18
+    ```
+
+2. If the Conda environment already exists, update the Conda environment path in `rai/scripts/submit_evalai.sh` and execute the script. This will activate your Conda environment and submit the agent:
+    ```bash
+    bash rai/scripts/submit_evalai.sh -t <image:tag> # for example neat:0.1
+    ```
